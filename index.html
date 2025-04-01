@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>insurance.sucks | Fight back against claim denials</title>
+    <style>
+        :root {
+            --primary: #00f5ff;
+            --secondary: #ff0055;
+            --dark: #0f0f12;
+            --medium-dark: #1a1a20;
+            --light: #f5f5f7;
+            --text: #e5e5e7;
+            --text-secondary: #c5c5c7;
+            --gradient: linear-gradient(135deg, var(--primary), var(--secondary));
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Roboto, -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+        
+        body {
+            background-color: var(--dark);
+            color: var(--text);
+            min-height: 100vh;
+            overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .container {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            min-height: 100vh;
+            padding: 1.5rem;
+            max-width: 100%;
+        }
+        
+        .nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+        
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            letter-spacing: -0.05em;
+            position: relative;
+        }
+        
+        .logo::after {
+            content: '';
+            position: absolute;
+            height: 6px;
+            width: 6px;
+            border-radius: 50%;
+            background: var(--secondary);
+            bottom: 4px;
+            right: -8px;
+        }
+        
+        .info-btn {
+            background: var(--dark);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: var(--text);
+            font-size: 1rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            padding: 0.5rem 0.8rem;
+            border-radius: 0.5rem;
+        }
+        
+        .info-btn:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        
+        .hero {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            flex-grow: 1;
+            gap: 1.5rem;
+            max-width: 100%;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            line-height: 1.1;
+            margin-bottom: 0.5rem;
+            max-width: 100%;
+            color: var(--light);
+        }
+        
+        .highlight {
+            color: var(--primary);
+        }
+        
+        p {
+            font-size: 1.1rem;
+            line-height: 1.5;
+            color: var(--text);
+            margin-bottom: 1rem;
+            max-width: 100%;
+        }
+        
+        .waitlist-form {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            width: 100%;
+            margin-top: 1rem;
+        }
+        
+        input {
+            background-color: var(--medium-dark);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 0.5rem;
+            padding: 1rem;
+            color: var(--text);
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+        
+        input:focus {
+            outline: none;
+            border-color: var(--primary);
+            background-color: rgba(255, 255, 255, 0.15);
+        }
+        
+        button {
+            background: var(--gradient);
+            border: none;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            color: var(--dark);
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.7s ease;
+        }
+        
+        button:hover::before {
+            left: 100%;
+        }
+        
+        .features {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+        
+        .feature {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+            color: var(--text);
+            background-color: var(--medium-dark);
+            padding: 0.5rem 0.8rem;
+            border-radius: 1rem;
+        }
+        
+        .feature-icon {
+            color: var(--primary);
+        }
+        
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+        
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        
+        .modal {
+            background-color: var(--medium-dark);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 1rem;
+            padding: 2rem;
+            width: 90%;
+            max-width: 500px;
+            max-height: 80vh;
+            overflow-y: auto;
+            transform: translateY(20px);
+            transition: transform 0.3s ease;
+            position: relative;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+        
+        .modal-overlay.active .modal {
+            transform: translateY(0);
+        }
+        
+        .close-btn {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: none;
+            border: none;
+            color: var(--text);
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0.9;
+            transition: opacity 0.3s ease;
+        }
+        
+        .close-btn:hover {
+            opacity: 1;
+        }
+        
+        .modal h2 {
+            font-size: 1.8rem;
+            margin-bottom: 1.5rem;
+            position: relative;
+            display: inline-block;
+        }
+        
+        .modal h2::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            bottom: -8px;
+            height: 3px;
+            width: 40px;
+            background: var(--gradient);
+        }
+        
+        .modal p {
+            margin-bottom: 1.5rem;
+        }
+        
+        .modal h3 {
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+            margin-top: 2rem;
+        }
+        
+        .modal ul {
+            padding-left: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .modal li {
+            margin-bottom: 0.8rem;
+            color: var(--text-secondary);
+        }
+        
+        .reveal {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+        
+        .floating {
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0% {
+                transform: translateY(0px);
+            }
+            50% {
+                transform: translateY(-10px);
+            }
+            100% {
+                transform: translateY(0px);
+            }
+        }
+        
+        .pulse {
+            animation: pulse 2s ease-in-out infinite;
+        }
+        
+        @keyframes pulse {
+            0% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.5;
+            }
+            100% {
+                opacity: 1;
+            }
+        }
+        
+        @media (min-width: 768px) {
+            h1 {
+                font-size: 3rem;
+            }
+            
+            .waitlist-form {
+                flex-direction: row;
+            }
+            
+            button {
+                width: auto;
+                white-space: nowrap;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <nav class="nav">
+            <div class="logo reveal">insurance.sucks</div>
+            <button class="info-btn reveal" id="info-btn">
+                <span>Learn more</span>
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="12" y1="16" x2="12" y2="12"></line>
+                    <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                </svg>
+            </button>
+        </nav>
+        
+        <main class="hero">
+            <div class="reveal" style="transition-delay: 0.2s;">
+                <h1>Insurance denied your claim? <span class="highlight floating">Fight back.</span></h1>
+                <p>An AI-powered appeal bot that gives you the same tools insurance companies use to deny you coverage.</p>
+            </div>
+            
+            <form class="waitlist-form reveal" style="transition-delay: 0.4s;" id="waitlist-form">
+                <input type="email" placeholder="Enter your email" required>
+                <button type="submit">Join the waitlist</button>
+            </form>
+            
+            <div class="features reveal" style="transition-delay: 0.6s;">
+                <div class="feature">
+                    <svg class="feature-icon pulse" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                    <span>Automated appeals</span>
+                </div>
+                <div class="feature">
+                    <svg class="feature-icon pulse" style="animation-delay: 0.5s;" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M22 12h-4l-3 9L9 3l-3 9H2"></path>
+                    </svg>
+                    <span>80% success rate</span>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <div class="modal-overlay" id="modal-overlay">
+        <div class="modal">
+            <button class="close-btn" id="close-btn">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+            </button>
+            
+            <h2>About insurance.sucks</h2>
+            
+            <p>We're building an AI-powered tool that helps everyday people fight back against unfair insurance claim denials. Our technology analyzes your denial, identifies legal precedents, and generates professional appeals to get you the coverage you deserve.</p>
+            
+            <h3>How it works</h3>
+            <ul>
+                <li>Upload your denial letter</li>
+                <li>Our AI analyzes the specific reason for denial</li>
+                <li>We generate a personalized appeal based on successful cases</li>
+                <li>You review and submit the appeal</li>
+                <li>We track the appeal process and guide you through any follow-ups</li>
+            </ul>
+            
+            <h3>Why it matters</h3>
+            <p>Insurance companies deny millions of valid claims each year, knowing most people won't appeal. They use complex language, bureaucratic processes, and technical loopholes to avoid paying. We're leveling the playing field with the same data-driven tools they use, but putting them in your hands.</p>
+            
+            <h3>Join the waitlist</h3>
+            <p>We're launching soon and will be accepting a limited number of users in our first phase. Join the waitlist to be among the first to access our tool and take back control of your insurance claims.</p>
+        </div>
+    </div>
+    
+    <script>
+        // Reveal animations
+        document.addEventListener('DOMContentLoaded', () => {
+            setTimeout(() => {
+                document.querySelectorAll('.reveal').forEach((el, index) => {
+                    setTimeout(() => {
+                        el.style.opacity = 1;
+                        el.style.transform = 'translateY(0)';
+                    }, index * 100);
+                });
+            }, 300);
+        });
+        
+        // Modal functionality
+        const infoBtn = document.getElementById('info-btn');
+        const closeBtn = document.getElementById('close-btn');
+        const modalOverlay = document.getElementById('modal-overlay');
+        
+        infoBtn.addEventListener('click', () => {
+            modalOverlay.classList.add('active');
+        });
+        
+        closeBtn.addEventListener('click', () => {
+            modalOverlay.classList.remove('active');
+        });
+        
+        modalOverlay.addEventListener('click', (e) => {
+            if (e.target === modalOverlay) {
+                modalOverlay.classList.remove('active');
+            }
+        });
+        
+        // Form submission (placeholder)
+        const form = document.getElementById('waitlist-form');
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const email = e.target.querySelector('input[type="email"]').value;
+            if (email) {
+                alert('Thanks for joining the waitlist! We\'ll notify you when we launch.');
+                e.target.reset();
+            }
+        });
+    </script>
+</body>
+</html>
